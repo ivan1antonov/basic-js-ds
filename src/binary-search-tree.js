@@ -1,92 +1,121 @@
 const { Node } = require('../extensions/list-tree.js');
 
 /**
-* Implement simple binary search tree according to task description
-* using Node from extensions
-*/
+ * Implement simple binary search tree according to task description
+ * using Node from extensions
+ */
 class BinarySearchTree {
-  // constructor() {
-  //   this.head = null;
-  // }
+  constructor() {
+    this.rootNode = null;
+  }
 
-  // root() {
-  //   return this.head;
-  // }
+  root() {
+    return this.rootNode;
+  }
 
-  // add(data) {
-  //   this.head = this.addNode(this.head, data);
-  // }
-  
-  // addNode(node, data) {
-  //   if (!node) return new Node(data);
-  //   if (data === node.data) return node;
-  //   if (data < node.data) node.left = this.addNode(node.left, data);
-  //   if (data > node.data) node.right = this.addNode(node.right, data);
+  add(data) {
+    const newNode = new Node(data);
+    if (this.rootNode === null) {
+      this.rootNode = newNode;
+    } else {
+      this._createNode(this.rootNode, newNode);
+    }
+  }
 
-  //   return node;
-  // }
+  _createNode(node, newNode) {
+    if (newNode.data < node.data) {
+      if (!node.left) {
+        node.left = newNode;
+      } else {
+        this._createNode(node.left, newNode);
+      }
+    } else if (newNode.data > node.data) {
+      if (!node.right) {
+        node.right = newNode;
+      } else {
+        this._createNode(node.right, newNode);
+      }
+    }
+  }
 
-  // has(data) {
-  //   return !!this.searchNode(this.head, data);
-  // }
+  _search(node, value) {
+    if (!node) {
+      return null;
+    }
+    if (node.data === value) {
+      return node;
+    } else if (value < node.data) {
+      return this._search(node.left, value);
+    } else {
+      return this._search(node.right, value);
+    }
+  }
 
-  // searchNode(node, data) {
-  //   if (!node) return null;
-  //   if (node.data === data) return node;
+  has(data) {
+    return !!this._search(this.rootNode, data);
+  }
 
-  //   if (data < node.data) return this.searchNode(node.left, data);
-  //   return this.searchNode(node.right, data);
-  // }
+  find(data) {
+    return this._search(this.rootNode, data);
+  }
 
-  // find(data) {
-  //   return this.searchNode(this.head, data);
-  // }
+  _deleteNode(node, value) {
+    if (!node) return null;
 
-  // remove(data) {
-  //   this.head = this.removeNode(this.head, data);
-  // }
+    if (value < node.data) {
+      node.left = this._deleteNode(node.left, value);
+      return node;
+    } else if (value > node.data) {
+      node.right = this._deleteNode(node.right, value);
+      return node;
+    } else {
+      // Node with only one child or no child
+      if (!node.left) {
+        return node.right;
+      } else if (!node.right) {
+        return node.left;
+      }
 
-  // removeNode(node, data){
-  //   if (!node) return null;
-  //   if (data > node.data) {
-  //     node.right = this.removeNode(node.right, data);
-  //     return node;
-  //   }
-  //   if (data < node.data) {
-  //     node.left = this.removeNode(node.left, data);
-  //     return node;
-  //   }
-  //   if (!node.left && !node.right) return null;
-  //   if (!node.left) {
-  //     node = node.right;
-  //     return node;
-  //   }
-  //   if (!node.right) {
-  //     node = node.left;
-  //     return node;
-  //   }
-  //   let min = node.right;
-  //   while (min.left) min = min.left;
-  //   node.data = min.data;
-  //   node.right = this.removeNode(node.right, min.data);
-  //   return node;
-  // }
+      // Node with two children: Get the inorder successor (smallest in the right subtree)
+      const minValue = this._findMinValue(node.right);
+      node.data = minValue;
 
-  // min() {
-  //   let letter = this.head;
-  //   while (letter.left) {
-  //     letter = letter.left;
-  //   }
-  //   return letter.data;
-  // }
+      // Delete the inorder successor
+      node.right = this._deleteNode(node.right, minValue);
+      return node;
+    }
+  }
 
-  // max() {
-  //   let letter = this.head;
-  //   while (letter.right) {
-  //     letter = letter.right;
-  //   }
-  //   return letter.data;
-  // }
+  _findMinValue(node) {
+    while (node.left) {
+      node = node.left;
+    }
+    return node.data;
+  }
+
+  remove(data) {
+    this.rootNode = this._deleteNode(this.rootNode, data);
+  }
+
+  min() {
+    if (!this.rootNode) return null;
+
+    let current = this.rootNode;
+    while (current.left) {
+      current = current.left;
+    }
+    return current.data;
+  }
+
+  max() {
+    if (!this.rootNode) return null;
+
+    let current = this.rootNode;
+    while (current.right) {
+      current = current.right;
+    }
+    return current.data;
+  }
 }
 
 module.exports = {
